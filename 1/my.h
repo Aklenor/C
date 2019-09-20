@@ -2,24 +2,21 @@
 #define TAB_COLUMN_WIDTH 8
 
 /* get_line: читает строку в line, возвращает длину */
-int get_line(char line[], int lim) {
-    int sym, count;
-
-    for (count = 0; count < lim-1 && (sym = getchar()) != EOF && sym != '\n'; ++count)
-        line[count] = sym;
+int get_line(char line[], int lim){
+    int sym, i;
+    i = 0;
+    while ( i < lim-1 && (sym = getchar()) != EOF && sym != '\n')
+        line[i++] = sym;
 
     if (sym == '\n')
-    {
-        line[count] = sym;
-        ++count;
-    }
+        line[i++] = sym;
 
-    line[count] = '\0';
-    return count;
+    line[i] = '\0';
+    return i;
 }
 
 /* copy: копирует из 'from' в 'to'; to достаточно большой */
-void copy(char from[], char to[]) {
+void copy(char from[], char to[]){
     int i = 0;
     while ((to[i] = from[i]) != '\0')
         ++i;
@@ -45,8 +42,7 @@ void reverse(char line[]){
     copy(reverse_line,line);
 }
 
-void shrink_spaces(char line[])
-{
+void shrink_spaces(char line[]){
     int i, j, sym;
     char fixed_line[MAXLINE];
     j = 0;
@@ -136,4 +132,47 @@ void entab(char line[], int len){
     }
 
     copy(new_line,line);
+}
+
+void wrap(char line[], int len, int wrap_len){
+
+    #define NO -1
+
+    int last_space = NO;
+    char new_line[MAXLINE];
+    int len_count=0;
+
+    for (int count=0, ncount=0; count <= len; ++count, ++ncount){
+
+        new_line[ncount] = line[count];
+
+        if (new_line[ncount] == ' ' || 
+                new_line[ncount] == '\n'||
+                new_line[ncount] == '\t')
+            last_space = ncount;
+
+        if (len_count >= wrap_len) {
+            if(last_space != NO) {
+                new_line[last_space] = '\n';
+                len_count = ncount - last_space;
+                last_space = NO;
+            }
+            else {
+                new_line[ncount+1] = new_line[ncount];
+                new_line[ncount] = '\n';
+                ++ncount;
+                last_space = NO;
+                len_count = 1;
+            }
+        }
+        else if (new_line[count] == '\t'){
+            // correct tab to space calculation
+            len_count = len_count + TAB_COLUMN_WIDTH -
+                ((len_count + TAB_COLUMN_WIDTH) % TAB_COLUMN_WIDTH);
+        }
+        else
+            ++len_count;
+    }
+
+    copy(new_line, line);
 }
