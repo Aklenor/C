@@ -1,0 +1,1 @@
+/home/berkut/projects/C/mystr.c

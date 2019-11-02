@@ -1,0 +1,1 @@
+/home/berkut/projects/C/.ycm_extra_conf.py
